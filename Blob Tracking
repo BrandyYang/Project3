@@ -1,0 +1,125 @@
+import hypermedia.video.*;
+
+import java.awt.Rectangle;
+import java.awt.Point;
+
+import processing.serial.*;
+Serial myPort;
+
+OpenCV opencv;
+
+int w = 320;
+int h = 210;
+int threshold = 80;
+
+boolean find=true;
+
+int angle;
+float arcsin;
+float a=7.5;
+float b=10.5;
+
+PFont font;
+
+void setup() {
+
+    size( w*2+30, h*2+30 );
+
+    opencv = new OpenCV( this );
+    opencv.capture(w,h,1);
+    
+    font = loadFont( "AndaleMono.vlw" );
+    textFont( font );
+    
+    println(Serial.list());
+    myPort = new Serial(this, Serial.list()[4],9600);
+
+    println( "Drag mouse inside sketch window to change threshold" );
+    println( "Press space bar to record background image" );
+
+}
+
+
+
+void draw() {
+
+    background(0);
+    opencv.read();
+    //opencv.flip( OpenCV.FLIP_HORIZONTAL );
+
+    image( opencv.image(), 10, 10 );	            // RGB image
+    image( opencv.image(OpenCV.GRAY), 20+w, 10 );   // GRAY image
+    image( opencv.image(OpenCV.MEMORY), 10, 20+h ); // image in memory
+
+    opencv.absDiff();
+    opencv.threshold(threshold);
+    image( opencv.image(OpenCV.GRAY), 20+w, 20+h ); // absolute difference image
+
+
+    // working with blobs
+    Blob[] blobs = opencv.blobs( 100, w*h/3, 20, true );
+
+    noFill();
+
+    pushMatrix();
+    translate(20+w,20+h);
+    
+    for( int i=0; i<blobs.length; i++ ) {
+
+        Rectangle bounding_rect	= blobs[i].rectangle;
+        float area = blobs[i].area;
+        if (blobs[i].area>=1000)
+        {
+        float circumference = blobs[i].length;
+        Point centroid = blobs[i].centroid;
+        Point[] points = blobs[i].points;
+
+        // rectangle
+        noFill();
+        stroke( blobs[i].isHole ? 128 : 64 );
+        rect( bounding_rect.x, bounding_rect.y, bounding_rect.width, bounding_rect.height );
+
+
+        // centroid
+        stroke(0,0,255);
+        line( centroid.x-5, centroid.y, centroid.x+5, centroid.y );
+        line( centroid.x, centroid.y-5, centroid.x, centroid.y+5 );
+        noStroke();
+        fill(0,0,255);
+        
+        angle=int(map(320-centroid.x,0,320,40 ,120));
+        myPort.write(angle);
+        
+
+        println(arcsin);   
+        
+        
+      //paint the rectangle  
+        if ( points.length>0 ) {
+            beginShape();
+            for( int j=0; j<points.length; j++ ) {
+                vertex( points[j].x, points[j].y );
+            }
+            endShape(CLOSE);
+        }
+        }
+        
+        
+
+    }
+    popMatrix();
+
+}
+
+void keyPressed() {
+    if ( key==' ' ) opencv.remember();
+}
+
+void mouseDragged() {
+    threshold = int( map(mouseX,0,width,0,255) );
+}
+
+public void stop() {
+    opencv.stop();
+    super.stop();
+}
