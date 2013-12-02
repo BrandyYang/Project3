@@ -5,7 +5,7 @@ Project 3 for creation and computation course.
 
 There are 7 different files of code in this project. Two of them are Arduino, and the rest three are Processing.
 
-Code file checklist:;
+Code file checklist:
 
 Facial recongnition - Processing;
 
