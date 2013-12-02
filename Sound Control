@@ -1,0 +1,30 @@
+import processing.net.*;
+
+import processing.video.*;
+
+
+Movie movie;
+
+Client client;
+
+void setup() {
+  size(200, 200);
+  movie = new Movie (this, "drone.m4a");
+  client = new Client(this, "127.0.0.1", 5204);
+}
+
+void draw() {
+
+  background(0);
+  if (client.available()>0)
+  {
+    if (client.read()==100)
+    {
+      movie.play();
+    }
+    if (client.read()==50)
+    {
+      movie.stop();
+    }
+  }
+}
