@@ -1,0 +1,101 @@
+import hypermedia.video.*;
+import java.awt.Rectangle;
+
+
+import processing.video.*;
+
+
+int centerX;
+int centerY;
+
+Movie movie;
+
+PImage img;
+
+OpenCV opencv;
+
+// contrast/brightness values
+int contrast_value    = 0;
+int brightness_value  = 0;
+
+
+
+void setup() {
+
+  size( 720, 420 );
+  background(0);
+
+  img = loadImage("face.png");
+
+  movie = new Movie(this, "test 2.mp4");
+  //movie.loop();
+
+  opencv = new OpenCV( this );
+  opencv.capture( width, height );                   // open video stream
+  opencv.cascade( OpenCV.CASCADE_FRONTALFACE_ALT );  // load detection description, here-> front face detection : "haarcascade_frontalface_alt.xml"
+}
+
+
+public void stop() {
+  opencv.stop();
+  super.stop();
+}
+
+void movieEvent(Movie m)
+{
+  m.read();
+}
+
+
+void draw() {
+  background(0);
+
+  // grab a new frame
+  // and convert to gray
+  opencv.read();
+  opencv.convert( GRAY );
+  opencv.contrast( contrast_value );
+  opencv.brightness( brightness_value );
+
+  // proceed detection
+  Rectangle[] faces = opencv.detect( 1.2, 2, OpenCV.HAAR_DO_CANNY_PRUNING, 100, 100 );
+
+  // display the image
+  image( opencv.image(), 0, 0 );
+  image(img, 0, 0);
+
+  // draw face area(s)
+  noFill();
+  stroke(255, 0, 0);
+
+//line(300,0,300,height);  
+//line(400,0,400,height);
+//line(0,150,width,150);
+//line(0,270,width,270);
+
+println(mouseX+","+mouseY);
+
+
+  for ( int i=0; i<faces.length; i++ ) 
+  {
+//    rect( faces[i].x, faces[i].y, faces[i].width, faces[i].height ); 
+//
+//    ellipse(((faces[i].x+(faces[i].x+faces[i].width))/2), ((faces[i].y+(faces[i].y+faces[i].height))/2), 20, 20);
+    
+    
+    centerX=(faces[i].x+(faces[i].x+faces[i].width))/2;
+    centerY=(faces[i].y+(faces[i].y+faces[i].height))/2;
+    
+    
+    if ( centerX >= 300 && centerX <= 400 && centerY >= 150 && centerY <= 270)
+    {   
+      movie.play();
+      image(movie, 0, 0, width, height);
+      movie.loop();
+    }
+    else
+    {
+      movie.stop();
+    }
+  }
+}
