@@ -1,0 +1,53 @@
+import processing.serial.*;
+import processing.net.*;
+
+Server server;
+
+Serial myPort;        // The serial port
+
+int button;
+
+float inByte;
+boolean flag=false;
+
+
+
+void setup () {
+
+  size(400, 300);        
+
+  println(Serial.list());
+
+  server = new Server(this, 5204);
+
+  myPort = new Serial(this, Serial.list()[4], 9600);
+  myPort.bufferUntil('\n');
+
+
+  background(0);
+}
+void draw () {
+  background(0);
+
+  if (inByte==100)
+
+  {
+    
+    background(200, 10, 100);
+      server.write(100);
+  }
+  if (inByte==50)
+  {
+    background(10, 100, 10);
+    server.write(50);
+  }
+}
+
+
+void serialEvent (Serial myPort) {
+
+  String inString = myPort.readStringUntil('\n');
+
+  inByte =float(inString);
+  println(inByte);
+}
