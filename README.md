@@ -3,7 +3,7 @@ Project3
 
 Project 3 for creation and computation course.
 
-There are 7 different files of code in this project. Two of them are Arduino, and the rest three are Processing.
+There are 7 different files of code in this project. 
 
 Code file checklist:
 
